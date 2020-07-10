@@ -1,0 +1,1 @@
+gcc server.c  ../common/common.c ../common/udp_server.c ../common/data.c ../common/sub_reactor.c ../common/udp_epoll.c ../common/thread_pool.c -I ../common/ -lpthread -D _D
