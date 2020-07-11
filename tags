@@ -17,8 +17,9 @@ CHAT_FIN	common/datatype.h	99;"	d
 CHAT_FUNC	common/datatype.h	104;"	d
 CHAT_HEART	common/datatype.h	100;"	d
 CHAT_MSG	common/datatype.h	103;"	d
+CHAT_SYS	common/datatype.h	105;"	d
 CHAT_WALL	common/datatype.h	102;"	d
-ChatMag	common/datatype.h	/^struct ChatMag {$/;"	s
+ChatMsg	common/datatype.h	/^struct ChatMsg {$/;"	s
 Ctl	common/datatype.h	/^struct Ctl {$/;"	s
 DBG	common/common.h	16;"	d
 DBG	common/common.h	18;"	d
@@ -53,6 +54,7 @@ Score	common/datatype.h	/^struct Score {$/;"	s
 Speed	common/datatype.h	/^struct Speed{$/;"	s
 User	common/datatype.h	/^struct User {$/;"	s
 YELLOW	common/color.h	18;"	d
+_CLIENT_RECV_H	common/client_recv.h	9;"	d
 _COLOR_H	common/color.h	9;"	d
 _COMMON_H	common/common.h	9;"	d
 _DATATYPE_H	common/datatype.h	9;"	d
@@ -66,7 +68,6 @@ _UDP_SERVER_H	common/udp_server.h	9;"	d
 a	common/datatype.h	/^    struct Aspeed a;$/;"	m	struct:BallStatus	typeref:struct:BallStatus::Aspeed
 action	common/datatype.h	/^    int action;$/;"	m	struct:Ctl
 add_event_ptr	common/udp_epoll.c	/^void add_event_ptr(int epollfd, int fd, int events, struct User* user)$/;"	f
-add_event_ptr	server/server.c	/^void add_event_ptr(int epollfd, int fd, int events, struct User* user)$/;"	f
 add_to_sub_reactor	common/udp_epoll.c	/^void add_to_sub_reactor(struct User* user)$/;"	f
 ball	server/server.c	/^struct Bpoint ball; \/\/球的位置$/;"	v	typeref:struct:Bpoint
 ball_status	server/server.c	/^struct BallStatus ball_status; \/\/球的状态$/;"	v	typeref:struct:BallStatus
@@ -82,9 +83,9 @@ conf_ans	common/data.c	/^char conf_ans[50] = {0};$/;"	v
 court	server/server.c	/^struct Map court;$/;"	v	typeref:struct:Map
 ctl	common/datatype.h	/^    struct Ctl ctl;$/;"	m	struct:FootBallMsg	typeref:struct:FootBallMsg::Ctl
 del_event	common/udp_epoll.c	/^void del_event(int epollfd, int fd)$/;"	f
-del_event	server/server.c	/^void del_event(int epollfd, int fd)$/;"	f
 dirx	common/datatype.h	/^    int dirx;$/;"	m	struct:Ctl
 diry	common/datatype.h	/^    int diry;$/;"	m	struct:Ctl
+do_recv	common/client_recv.c	/^void* do_recv(void* arg)$/;"	f
 do_work	common/thread_pool.c	/^void do_work(struct User *user){$/;"	f
 epollfd	common/thread_pool.h	/^    int epollfd; \/\/从反应堆$/;"	m	struct:task_queue
 fd	common/datatype.h	/^    int fd; \/\/该玩家对应的连接$/;"	m	struct:User
@@ -101,11 +102,12 @@ main	client/client.c	/^int main(int argc, char **argv) {$/;"	f
 main	server/server.c	/^int main(int argc, char **argv) {$/;"	f
 make_block	common/common.c	/^void make_block(int fd) {$/;"	f
 make_non_block	common/common.c	/^void make_non_block(int fd) {$/;"	f
-msg	common/datatype.h	/^    char msg[1024];$/;"	m	struct:ChatMag
+msg	common/datatype.h	/^    char msg[1024];$/;"	m	struct:ChatMsg
 msg	common/datatype.h	/^    char msg[512];$/;"	m	struct:LogRequest
 msg	common/datatype.h	/^    char msg[512];$/;"	m	struct:LogResponse
 msg	common/datatype.h	/^    char msg[MAX_MSG];$/;"	m	struct:FootBallMsg
 mutex	common/thread_pool.h	/^    pthread_mutex_t mutex;$/;"	m	struct:task_queue
+name	common/datatype.h	/^    char name[20]; \/\/由谁发送的信息$/;"	m	struct:ChatMsg
 name	common/datatype.h	/^    char name[20];$/;"	m	struct:BallStatus
 name	common/datatype.h	/^    char name[20];$/;"	m	struct:FootBallMsg
 name	common/datatype.h	/^    char name[20];$/;"	m	struct:LogRequest
@@ -134,6 +136,7 @@ task_queue	common/thread_pool.h	/^struct task_queue {$/;"	s
 task_queue_init	common/thread_pool.c	/^void task_queue_init(struct task_queue *taskQueue, int sum, int epollfd) {$/;"	f
 task_queue_pop	common/thread_pool.c	/^struct User *task_queue_pop(struct task_queue *taskQueue) {$/;"	f
 task_queue_push	common/thread_pool.c	/^void task_queue_push(struct task_queue *taskQueue, struct User *user) {$/;"	f
+team	client/client.c	/^int team = -1;$/;"	v
 team	common/datatype.h	/^    int team; \/\/ 0 RED  1 BLUE$/;"	m	struct:User
 team	common/datatype.h	/^    int team;$/;"	m	struct:FootBallMsg
 team	common/datatype.h	/^    int team;$/;"	m	struct:LogRequest
@@ -142,7 +145,7 @@ thread_run	common/thread_pool.c	/^void *thread_run(void *arg) {$/;"	f
 timestamp	common/store_score.c	/^long timestamp() {$/;"	f
 type	common/datatype.h	/^    int type;  \/\/ type & FT_HEART$/;"	m	struct:FootBallMsg
 type	common/datatype.h	/^    int type; \/\/ 0 OK 1 NO$/;"	m	struct:LogResponse
-type	common/datatype.h	/^    int type;$/;"	m	struct:ChatMag
+type	common/datatype.h	/^    int type;$/;"	m	struct:ChatMsg
 udp_accept	common/udp_epoll.c	/^int udp_accept(int fd, struct User *user) {$/;"	f
 udp_connect	common/udp_epoll.c	/^int udp_connect(struct sockaddr_in *client) {$/;"	f
 v	common/datatype.h	/^    struct Speed v;$/;"	m	struct:BallStatus	typeref:struct:BallStatus::Speed

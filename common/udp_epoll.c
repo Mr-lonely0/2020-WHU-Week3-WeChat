@@ -8,12 +8,14 @@
 #include "head.h"
 extern int port;
 extern int repollfd, bepollfd;
+extern pthread_mutex_t bmutex;
+extern pthread_mutex_t rmutex;
 struct User* rteam, *bteam;
 
 void add_event_ptr(int epollfd, int fd, int events, struct User* user)
 {
     struct epoll_event ev;
-    ev.data.ptr = user;
+    ev.data.ptr = (void*)user;
     ev.events = events;
     epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &ev);
 }
@@ -82,7 +84,6 @@ int udp_accept(int fd, struct User *user) {
     } else {
         DBG(GREEN"Info"NONE" : "RED"%s login on %s:%d   <%s>\n", request.name, inet_ntoa(client.sin_addr), ntohs(client.sin_port), request.msg);
     }
-
     strcpy(user->name, request.name);
     user->team = request.team;
     new_fd = udp_connect(&client);
@@ -103,18 +104,27 @@ int find_sub(struct User* team)
 void add_to_sub_reactor(struct User* user)
 {
     struct User* team = (user->team ? bteam : rteam);
-    int sub = find_sub(team);
-    if (sub < 0) {
-        fprintf(stderr, "Full Team!\n");
-        return;
+    DBG(YELLOW"Main Thread : "NONE"Add to sub_reactor\n");
+    if (user->team) {
+        pthread_mutex_lock(&bmutex);
+    } else {
+        pthread_mutex_lock(&rmutex);
     }
+    int sub = find_sub(team);
     team[sub] = *user;
     team[sub].online = 1;
     team[sub].flag = 10;
-    DBG(L_RED"sub = %d, name = %s\n", sub, team[sub].name);
+    DBG(L_RED"sub = %d, name = %s\n"NONE, sub, team[sub].name);
+    struct ChatMsg r_msg;
+    r_msg.type = CHAT_SYS;
+    bzero(r_msg.msg, sizeof(r_msg.msg));
+    sprintf(r_msg.msg, "您的好友"RED"%s"NONE"上线了，快去打个招呼吧！\n", user->name);
+    send_all(&r_msg);
     if (user->team) {
-        add_event_ptr(bepollfd, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);
+        pthread_mutex_unlock(&bmutex);
     } else {
-        add_event_ptr(repollfd, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);
+        pthread_mutex_unlock(&rmutex);
     }
+    int epollfd_ = user->team ? bepollfd : repollfd;
+    add_event_ptr(epollfd_, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);
 }
